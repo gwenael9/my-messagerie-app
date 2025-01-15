@@ -4,13 +4,17 @@ import { PassportModule } from '@nestjs/passport';
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'changeme',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
   ],
