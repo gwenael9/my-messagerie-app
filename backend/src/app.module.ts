@@ -7,7 +7,8 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Permet d'accéder aux variables d'environnement dans toute l'application
+      // Permet d'accéder aux variables d'environnement dans toute l'application
+      isGlobal: true,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

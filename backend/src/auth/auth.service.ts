@@ -42,6 +42,7 @@ export class AuthService {
     return req.cookies['token'];
   }
 
+  // récupère l'user depuis le token
   async getUserFromToken(request: Request): Promise<User> {
     const jwtCookie = await this.isConnected(request);
     if (!jwtCookie) {

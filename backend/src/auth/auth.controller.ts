@@ -24,7 +24,9 @@ export class AuthController {
     @Body() user: User,
     @Req() request: Request,
   ): Promise<{ message: string }> {
+    // on vérifie si l'user est connecté
     const isConnected = await this.authService.isConnected(request);
+    // s'il est connecté, il ne pourra pas créer de compte
     if (isConnected) {
       return { message: 'Vous êtes déjà connecté.' };
     }
@@ -49,7 +51,6 @@ export class AuthController {
     const user = await this.authService.validateUser(body.email, body.password);
     const { accessToken } = await this.authService.login(user);
 
-    // Définir le cookie avec le JWT
     response.cookie('token', accessToken, {
       httpOnly: true,
     });
@@ -61,7 +62,14 @@ export class AuthController {
   @HttpCode(200)
   async logout(
     @Res({ passthrough: true }) response: Response,
+    @Req() request: Request,
   ): Promise<{ message: string }> {
+    // on vérifie si l'user est bien déconnecté avant de se déconnecter
+    const isConnected = await this.authService.isConnected(request);
+    if (!isConnected) {
+      return { message: 'Aucun compte connecté.' };
+    }
+
     // on supprime le cookie
     response.clearCookie('token');
     return { message: 'Déconnexion confirmée.' };

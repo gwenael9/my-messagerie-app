@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    // seul les users connecté avec le rôle admin peuvent accèder aux routes /users
     consumer.apply(AdminMiddleware).forRoutes('users');
   }
 }
