@@ -4,11 +4,12 @@ import {
   Body,
   Res,
   HttpCode,
-  UnauthorizedException,
+  Req,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { User } from '../user/user.entity';
 
 @Controller('auth')
@@ -19,8 +20,17 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body() user: User): Promise<User> {
-    return this.userService.create(user);
+  async register(
+    @Body() user: User,
+    @Req() request: Request,
+  ): Promise<{ message: string }> {
+    const isConnected = await this.authService.isConnected(request);
+    if (isConnected) {
+      return { message: 'Vous êtes déjà connecté.' };
+    }
+
+    const userCreate = await this.userService.create(user);
+    return { message: `Votre compte a bien été créé ${userCreate.name} !` };
   }
 
   @Post('login')
@@ -28,22 +38,23 @@ export class AuthController {
   async login(
     @Body() body: { email: string; password: string },
     @Res({ passthrough: true }) response: Response,
+    @Req() request: Request,
   ): Promise<{ message: string }> {
-    const user = await this.authService.validateUser(body.email, body.password);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+    // on vérifie si l'user est déjà connecté
+    const isConnected = await this.authService.isConnected(request);
+    if (isConnected) {
+      return { message: 'Vous êtes déjà connecté.' };
     }
 
+    const user = await this.authService.validateUser(body.email, body.password);
     const { accessToken } = await this.authService.login(user);
 
     // Définir le cookie avec le JWT
-    response.cookie('auth-cookie', accessToken, {
-      httpOnly: true, // Sécurise le cookie
-      secure: process.env.NODE_ENV === 'production', // Utilise HTTPS en production
-      maxAge: 3600000, // 1 heure
+    response.cookie('token', accessToken, {
+      httpOnly: true,
     });
 
-    return { message: 'Login successful' };
+    return { message: `Bienvenue ${user.name} !` };
   }
 
   @Post('logout')
@@ -51,7 +62,13 @@ export class AuthController {
   async logout(
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ message: string }> {
-    response.clearCookie('auth-cookie');
-    return { message: 'Logout successful' };
+    // on supprime le cookie
+    response.clearCookie('token');
+    return { message: 'Déconnexion confirmée.' };
+  }
+
+  @Get('me')
+  async getProfile(@Req() request: Request): Promise<User> {
+    return await this.authService.getUserFromToken(request);
   }
 }
