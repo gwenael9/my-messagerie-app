@@ -19,7 +19,6 @@ export class MessageService {
     content: string,
     senderId: number,
     recipientId: number,
-    conversationId?: number,
   ): Promise<Message> {
     const sender = await this.userService.findById(senderId);
     const recipient = await this.userService.findById(recipientId);
@@ -30,26 +29,18 @@ export class MessageService {
 
     let conversation: Conversation;
 
-    if (conversationId) {
-      conversation = await this.conversationService.findById(conversationId);
+    // on vérifie qu'une conversation existe déjà entre les deux users
+    conversation = await this.conversationService.findByUsers([
+      sender,
+      recipient,
+    ]);
 
-      if (!conversation) {
-        throw new NotFoundException('Conversation introuvable.');
-      }
-    } else {
-      conversation = await this.conversationService.findByUser([
-        sender,
-        recipient,
-      ]);
-
-      if (!conversation) {
-        conversation = await this.conversationService.create([
-          sender,
-          recipient,
-        ]);
-      }
+    // s'il n'y a pas de discussion, on l'a crée
+    if (!conversation) {
+      conversation = await this.conversationService.create([sender, recipient]);
     }
 
+    // on crée le message
     const message = this.messageRepository.create({
       content,
       sender,

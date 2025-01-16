@@ -22,11 +22,10 @@ export class MessageController {
     body: {
       content: string;
       recipientId: number;
-      conversationId?: number;
     },
     @Req() request: Request,
   ) {
-    const { content, recipientId, conversationId } = body;
+    const { content, recipientId } = body;
 
     // on vérifie que le contenu et le destinataire sont présent
     if (!content || !recipientId) {
@@ -50,7 +49,6 @@ export class MessageController {
       content,
       user.sub,
       recipientId,
-      conversationId,
     );
 
     return {
