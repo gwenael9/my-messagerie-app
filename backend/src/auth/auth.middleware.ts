@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   Injectable,
   NestMiddleware,
   UnauthorizedException,
@@ -12,6 +11,8 @@ import { User } from 'src/user/user.entity';
 export class AuthMiddleware implements NestMiddleware {
   constructor(private readonly jwtService: JwtService) {}
 
+  messageError = "Vous n'êtes pas autorisé.";
+
   use(req: Request, res: Response, next: NextFunction) {
     this.verifyToken(req);
     next();
@@ -21,7 +22,7 @@ export class AuthMiddleware implements NestMiddleware {
     const token = req.cookies['token'];
 
     if (!token) {
-      throw new UnauthorizedException("Vous n'êtes pas connecté.");
+      throw new UnauthorizedException(this.messageError);
     }
 
     try {
@@ -31,7 +32,7 @@ export class AuthMiddleware implements NestMiddleware {
       req.user = decoded;
     } catch (err) {
       console.error(err);
-      throw new UnauthorizedException('Le token est invalide ou expiré.');
+      throw new UnauthorizedException(this.messageError);
     }
   }
 }
@@ -43,7 +44,7 @@ export class AdminMiddleware extends AuthMiddleware {
 
     const { role } = req.user as User;
     if (role !== 'ADMIN') {
-      throw new ForbiddenException("Vous n'avez pas les droits nécessaires.");
+      throw new UnauthorizedException(this.messageError);
     }
 
     next();

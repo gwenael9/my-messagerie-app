@@ -16,6 +16,7 @@ export class UserService {
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
+    // rôle de l'user
     user.role = await this.defineRole(user.email);
 
     return this.userRepository.save(user);
@@ -37,7 +38,9 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  async findById(id: number): Promise<User | undefined> {
-    return this.userRepository.findOne({ where: { id } });
+  async findById(id: number): Promise<User> {
+    return this.userRepository.findOne({
+      where: { id },
+    });
   }
 }

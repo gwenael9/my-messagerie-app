@@ -1,3 +1,4 @@
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 import {
   Controller,
   Post,
@@ -6,11 +7,13 @@ import {
   HttpCode,
   Req,
   Get,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { Response, Request } from 'express';
 import { User } from '../user/user.entity';
+import { Payload } from 'src/types/payload';
 
 @Controller('auth')
 export class AuthController {
@@ -76,7 +79,9 @@ export class AuthController {
   }
 
   @Get('me')
+  @UseGuards(AuthGuard)
   async getProfile(@Req() request: Request): Promise<User> {
-    return await this.authService.getUserFromToken(request);
+    const user = request.user as Payload;
+    return await this.userService.findById(user.sub);
   }
 }

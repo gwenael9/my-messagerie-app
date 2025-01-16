@@ -4,6 +4,7 @@ import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/user.entity';
 import { Request } from 'express';
+import { Payload } from 'src/types/payload';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +33,11 @@ export class AuthService {
   }
 
   async login(user: User): Promise<{ accessToken: string }> {
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const payload: Payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+    };
     const accessToken = this.jwtService.sign(payload);
     return { accessToken };
   }
@@ -40,21 +45,5 @@ export class AuthService {
   // vérifie si le token est présent dans les cookies
   async isConnected(req: Request): Promise<string> {
     return req.cookies['token'];
-  }
-
-  // récupère l'user depuis le token
-  async getUserFromToken(request: Request): Promise<User> {
-    const jwtCookie = await this.isConnected(request);
-    if (!jwtCookie) {
-      throw new UnauthorizedException('No token found');
-    }
-
-    try {
-      const decoded = this.jwtService.verify(jwtCookie);
-      return await this.userService.findById(decoded.sub);
-    } catch (error) {
-      console.error(error);
-      throw new UnauthorizedException('Invalid token');
-    }
   }
 }
