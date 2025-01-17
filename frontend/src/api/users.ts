@@ -42,7 +42,7 @@ export const me = async (): Promise<User | undefined> => {
 export const logout = async () => {
   try {
     const response = await apiClient.post("/auth/logout");
-    return response.data;
+    return response.data.message;
   } catch (error) {
     console.error("Erreur lors de la déconnexion", error);
   }

@@ -14,7 +14,7 @@ interface UserState {
   ) => Promise<string | void>;
   loginUser: (email: string, password: string) => Promise<string | void>;
   fetchUser: () => Promise<User | null>;
-  logoutUser: () => void;
+  logoutUser: () => Promise<string>;
 }
 
 const useUserStore = create<UserState>((set, get) => ({
@@ -82,8 +82,9 @@ const useUserStore = create<UserState>((set, get) => ({
   logoutUser: async () => {
     set({ loading: true, error: null });
     try {
-      await logout();
+      const message = await logout();
       set({ isLoggedIn: false, user: null });
+      return message;
     } catch (error) {
       console.error("Erreur lors de la déconnexion", error);
       set({ error: "Erreur lors de la déconnexion" });

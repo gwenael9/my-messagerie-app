@@ -14,14 +14,15 @@ export default async function middelware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
   if (!token) {
-    return NextResponse.redirect(new URL("/auth", request.url));
+    // return NextResponse.redirect(new URL("/auth", request.url));
+    return NextResponse.next();
   }
 
   try {
     // const { payload } = await jwtVerify<Payload>(token, JWT_SECRET);
 
     // si j'essaie d'aller sur la page de connexion alors que je suis connecté
-    if (request.nextUrl.pathname.startsWith("/auth")) {
+    if (token && request.nextUrl.pathname.startsWith("/auth")) {
       // je suis redirigé vers la page d'accueil
       return NextResponse.redirect(new URL("/", request.url));
     }
