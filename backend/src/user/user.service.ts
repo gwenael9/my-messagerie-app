@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ROLE, User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -41,7 +41,59 @@ export class UserService {
   async findById(id: number): Promise<User> {
     return this.userRepository.findOne({
       where: { id },
-      relations: ['conversations', 'conversations.messages'],
+      relations: ['conversations', 'conversations.messages', 'friends'],
     });
+  }
+
+  async addFriend(userId: number, friendId: number): Promise<User> {
+    const user = await this.findById(userId);
+    const friend = await this.findById(friendId);
+
+    if (!user || !friend) {
+      throw new Error('User ou Ami introuvable.');
+    }
+
+    // Vérifier s'ils ne sont pas déjà amis
+    await this.verifyIsAlreadyFriend(user, friend);
+
+    friend.friends.push(user);
+    await this.userRepository.save(friend);
+
+    user.friends.push(friend);
+    await this.userRepository.save(user);
+
+    return this.findById(userId);
+  }
+
+  async saveFriends(user: User, friend: User): Promise<void> {
+    friend.friends.push(user);
+    await this.userRepository.save(friend);
+
+    user.friends.push(friend);
+    await this.userRepository.save(user);
+  }
+
+  async removeFriend(userId: number, friendId: number): Promise<User> {
+    const user = await this.findById(userId);
+    const friend = await this.findById(friendId);
+
+    if (!user || !friend) {
+      throw new Error('User ou Ami introuvable.');
+    }
+
+    user.friends = user.friends.filter((friend) => friend.id !== friendId);
+    return await this.userRepository.save(user);
+  }
+
+  async getMyFriends(userId: number): Promise<User[]> {
+    const user = await this.findById(userId);
+    return user.friends;
+  }
+
+  async verifyIsAlreadyFriend(user: User, friend: User): Promise<void> {
+    const alreadyFriends = user.friends.some((f) => f.id === friend.id);
+    if (alreadyFriends) {
+      throw new UnauthorizedException('Vous êtes déjà amis.');
+    }
   }
 }

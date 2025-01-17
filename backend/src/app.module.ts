@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { MessageModule } from './message/message.module';
 import { ConversationModule } from './conversation/conversation.module';
+import { FriendRequestModule } from './friendRequest/friendRequest.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ConversationModule } from './conversation/conversation.module';
     AuthModule,
     MessageModule,
     ConversationModule,
+    FriendRequestModule,
   ],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
 import { Conversation } from 'src/conversation/conversation.entity';
+import { FriendRequest } from 'src/friendRequest/friendRequest.entity';
 import { Message } from 'src/message/message.entity';
 import {
   Entity,
@@ -6,6 +7,7 @@ import {
   Column,
   OneToMany,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 export type ROLE = 'ADMIN' | 'USER';
@@ -39,4 +41,24 @@ export class User {
 
   @ManyToMany(() => Conversation, (conversation) => conversation.users)
   conversations: Conversation[];
+
+  @ManyToMany(() => User, (user) => user.friends)
+  @JoinTable({
+    name: 'user_friends',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'friend_id',
+      referencedColumnName: 'id',
+    },
+  })
+  friends: User[];
+
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender)
+  sentFriendRequests: FriendRequest[];
+
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.receiver)
+  receivedFriendRequests: FriendRequest[];
 }
