@@ -1,12 +1,15 @@
 import { getFriends } from "@/api/users";
 import Layout from "@/components/Layout/Layout";
 import CardUser from "@/components/users/user.card";
+import useUserStore from "@/store/authStore";
 import { User } from "@/types/user";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   const [friends, setFriends] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const { isLoggedIn } = useUserStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,8 +23,10 @@ export default function Home() {
         setLoading(false);
       }
     };
-    fetchData();
-  }, []);
+    if (isLoggedIn) {
+      fetchData();
+    }
+  }, [isLoggedIn]);
 
   if (loading) return <p>Chargement de la liste des amis...</p>;
 
