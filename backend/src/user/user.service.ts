@@ -65,14 +65,6 @@ export class UserService {
     return this.findById(userId);
   }
 
-  async saveFriends(user: User, friend: User): Promise<void> {
-    friend.friends.push(user);
-    await this.userRepository.save(friend);
-
-    user.friends.push(friend);
-    await this.userRepository.save(user);
-  }
-
   async removeFriend(userId: number, friendId: number): Promise<User> {
     const user = await this.findById(userId);
     const friend = await this.findById(friendId);
@@ -81,10 +73,26 @@ export class UserService {
       throw new Error('User ou Ami introuvable.');
     }
 
+    // on vérifie que l'user a supprimé fais partie des amis de l'user connecté
+    if (!user.friends.some((f) => f.id === friendId)) {
+      throw new UnauthorizedException(
+        `${friend.name} ne fais pas partie de vos amis.`,
+      );
+    }
+
+    // on supprime l'user des amis de l'user n°1
     user.friends = user.friends.filter((friend) => friend.id !== friendId);
-    return await this.userRepository.save(user);
+    await this.userRepository.save(user);
+
+    // on supprime l'user des amis de l'user n°2
+    friend.friends = friend.friends.filter((u) => u.id !== userId);
+    await this.userRepository.save(friend);
+
+    // on renvoie l'user supprimé du point de vue de l'user connecté
+    return friend;
   }
 
+  // renvoie tout les amis d'un user selon son ID
   async getMyFriends(userId: number): Promise<User[]> {
     const user = await this.findById(userId);
     return user.friends;

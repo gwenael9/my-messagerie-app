@@ -17,6 +17,10 @@ export class FriendRequestService {
     senderId: number,
     receiverId: number,
   ): Promise<FriendRequest> {
+    if (senderId === receiverId) {
+      throw new UnauthorizedException('Impossible de vous demandez en ami.');
+    }
+
     const sender = await this.userService.findById(senderId);
     const receiver = await this.userService.findById(receiverId);
 

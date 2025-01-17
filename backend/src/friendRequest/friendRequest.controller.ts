@@ -16,6 +16,11 @@ import { AuthGuard } from 'src/auth/guards/auth.guard';
 export class FriendRequestController {
   constructor(private friendRequestService: FriendRequestService) {}
 
+  /**
+   *
+   * @param receiverId L'ID de l'utilisateur au quel on fais la demande
+   * @returns Un message de confirmation
+   */
   @Post('/:receiverId')
   @UseGuards(AuthGuard)
   async sendFriendRequest(
@@ -27,6 +32,11 @@ export class FriendRequestController {
     return { message: "La demande d'ami a bien été envoyé." };
   }
 
+  /**
+   *
+   * @param requestId L'ID de la demande
+   * @returns Un message de confirmation
+   */
   @Post('/:requestId/accept')
   @HttpCode(200)
   @UseGuards(AuthGuard)
@@ -44,6 +54,11 @@ export class FriendRequestController {
     };
   }
 
+  /**
+   *
+   * @param requestId L'ID de la demande
+   * @returns Un message de confirmation
+   */
   @Post('/:requestId/reject')
   @HttpCode(200)
   @UseGuards(AuthGuard)
