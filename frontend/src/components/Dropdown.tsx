@@ -1,4 +1,4 @@
-import useUserStore from "@/store/userStore";
+import useUserStore from "@/store/authStore";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,

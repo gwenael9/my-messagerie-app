@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { register, login, me, logout } from "../api/users";
+import { register, login, me, logout } from "../api/auth";
 import { User } from "@/types/user";
 
 interface UserState {
@@ -26,9 +26,7 @@ const useUserStore = create<UserState>((set, get) => ({
   registerUser: async (email, name, password) => {
     set({ loading: true, error: null });
     try {
-      const message = await register(email, name, password);
-      return message;
-      // Optionnel : Tu peux automatiquement connecter l'utilisateur après l'inscription
+      return await register(email, name, password);
     } catch (err) {
       console.error("Erreur lors de l'inscription :", err);
       set({ error: "Erreur lors de l'inscription" });
@@ -43,7 +41,6 @@ const useUserStore = create<UserState>((set, get) => ({
       const userData = await me();
       if (userData) {
         set({ isLoggedIn: true, user: userData });
-        console.log(userData);
         return userData;
       } else {
         set({ isLoggedIn: false, user: null });
@@ -68,8 +65,8 @@ const useUserStore = create<UserState>((set, get) => ({
     try {
       const message = await login(email, password);
       if (message) {
-        await get().fetchUser(); // Si la connexion réussit, récupération des données utilisateur
-        return message; // Retour du message en cas de succès
+        await get().fetchUser();
+        return message;
       }
     } catch (err) {
       console.error("Erreur lors de la connexion :", err);

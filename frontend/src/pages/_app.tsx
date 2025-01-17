@@ -1,4 +1,4 @@
-import useUserStore from "@/store/userStore";
+import useUserStore from "@/store/authStore";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect } from "react";

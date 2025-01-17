@@ -1,4 +1,4 @@
-import useUserStore from "@/store/userStore";
+import useUserStore from "@/store/authStore";
 import Link from "next/link";
 import DropdownAvatar from "../Dropdown";
 

@@ -26,6 +26,10 @@ export class UserController {
     return await this.userService.findAll();
   }
 
+  /**
+   * Ajouter une route permettant de voir tout les users public
+   */
+
   @Get('friends')
   @UseGuards(AuthGuard)
   async findFriends(@Req() request: Request): Promise<User[]> {
