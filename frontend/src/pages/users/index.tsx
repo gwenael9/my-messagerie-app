@@ -5,8 +5,6 @@ import useUserStore from "@/stores/userStore";
 export default function UsersPage() {
   const { usersPublic } = useUserStore();
 
-  console.log(usersPublic);
-
   return (
     <Layout title="Utilisateurs">
       <h2>Profils publics</h2>

@@ -1,10 +1,12 @@
 import { create } from "zustand";
 import { register, login, me, logout } from "../api/auth";
 import { User } from "@/types/user";
+import useUserStore from "./userStore";
 
 interface AuthState {
   isLoggedIn: boolean;
   user: User | null;
+  friends: User[] | [];
   loading: boolean;
   error: string | null;
   registerUser: (
@@ -18,11 +20,14 @@ interface AuthState {
   logoutUser: () => Promise<string>;
 }
 
+const userStore = useUserStore.getState();
+
 const useAuthStore = create<AuthState>((set, get) => ({
   isLoggedIn: false,
   user: null,
   loading: false,
   error: null,
+  friends: [],
 
   registerUser: async (email, firstname, lastname, password) => {
     set({ loading: true, error: null });
@@ -41,7 +46,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const userData = await me();
       if (userData) {
-        set({ isLoggedIn: true, user: userData });
+        set({ isLoggedIn: true, user: userData, friends: userData.friends });
         return userData;
       } else {
         set({ isLoggedIn: false, user: null });
@@ -67,6 +72,10 @@ const useAuthStore = create<AuthState>((set, get) => ({
       const message = await login(email, password);
       if (message) {
         await get().fetchUser();
+
+        // re-fetch les users publics
+        await userStore.fetchUsersPublic();
+
         return message;
       }
     } catch (err) {
@@ -82,6 +91,10 @@ const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const message = await logout();
       set({ isLoggedIn: false, user: null });
+
+      // re-fetch les users publics
+      await userStore.fetchUsersPublic();
+
       return message;
     } catch (error) {
       console.error("Erreur lors de la déconnexion", error);

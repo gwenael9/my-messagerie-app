@@ -1,4 +1,4 @@
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+// import { AuthGuard } from 'src/auth/guards/auth.guard';
 import {
   Controller,
   Post,
@@ -8,12 +8,14 @@ import {
   Req,
   Get,
   UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { Response, Request } from 'express';
 import { User } from '../user/user.entity';
 import { Payload } from 'src/types/payload';
+import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {

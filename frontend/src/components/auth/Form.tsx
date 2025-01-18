@@ -70,7 +70,6 @@ export default function AuthForm({ type }: { type: FormType }) {
   });
 
   const handleSwitchForm = () => {
-    console.log("toto");
     form.reset();
     setFormKey((prevKey) => prevKey + 1);
     setFormType(
@@ -135,9 +134,7 @@ export default function AuthForm({ type }: { type: FormType }) {
       <CardContent>
         <Form key={formKey} {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit, (error) =>
-              console.log(error)
-            )}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
             <FormField

@@ -34,9 +34,12 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findAllPublicAccount(userId: number): Promise<User[]> {
+  async findAllPublicAccount(userId?: number): Promise<User[]> {
+    const conditions = userId
+      ? { profilVisibility: true, id: Not(userId) }
+      : { profilVisibility: true };
     return this.userRepository.find({
-      where: { profilVisibility: true, id: Not(userId) },
+      where: conditions,
       relations: ['friends'],
     });
   }

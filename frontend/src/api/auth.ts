@@ -37,7 +37,7 @@ export const me = async (): Promise<User | undefined> => {
     const response = await apiClient.get("/auth/me");
     return response.data as User;
   } catch (error) {
-    console.log("Erreur lors de la récupération de l'user", error);
+    console.error("Erreur lors de la récupération de l'user", error);
   }
 };
 
