@@ -37,6 +37,7 @@ export class UserService {
   async findAllPublicAccount(userId: number): Promise<User[]> {
     return this.userRepository.find({
       where: { profilVisibility: true, id: Not(userId) },
+      relations: ['friends'],
     });
   }
 
@@ -88,7 +89,7 @@ export class UserService {
     // on vérifie que l'user a supprimé fais partie des amis de l'user connecté
     if (!user.friends.some((f) => f.id === friendId)) {
       throw new UnauthorizedException(
-        `${friend.name} ne fais pas partie de vos amis.`,
+        `${friend.firstname} ne fais pas partie de vos amis.`,
       );
     }
 

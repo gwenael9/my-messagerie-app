@@ -3,12 +3,14 @@ import apiClient from "./apiClient";
 
 export const register = async (
   email: string,
-  name: string,
+  firstname: string,
+  lastname: string,
   password: string
 ) => {
   try {
     const response = await apiClient.post("/auth/register", {
-      name,
+      firstname,
+      lastname,
       email,
       password,
     });

@@ -47,14 +47,14 @@ export class ConversationService {
       where: { id },
       relations: ['users', 'messages', 'messages.sender', 'messages.recipient'],
       select: {
-        users: { id: true, name: true },
+        users: { id: true, firstname: true, lastname: true },
         messages: {
           id: true,
           content: true,
           timestamp: true,
           isRead: true,
-          sender: { id: true, name: true },
-          recipient: { id: true, name: true },
+          sender: { id: true, firstname: true, lastname: true },
+          recipient: { id: true, firstname: true, lastname: true },
         },
       },
     });

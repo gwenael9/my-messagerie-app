@@ -21,7 +21,7 @@ export default function Layout({ children, title }: LayoutProps) {
         />
       </Head>
       <Header />
-      <main style={{ height: "100dvh" }}>{children}</main>
+      <main className="px-8 mt-2" style={{ height: "100dvh" }}>{children}</main>
       <Toaster />
     </>
   );

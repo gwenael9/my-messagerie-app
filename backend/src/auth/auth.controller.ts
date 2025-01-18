@@ -35,7 +35,9 @@ export class AuthController {
     }
 
     const userCreate = await this.userService.create(user);
-    return { message: `Votre compte a bien été créé ${userCreate.name} !` };
+    return {
+      message: `Votre compte a bien été créé ${userCreate.firstname} !`,
+    };
   }
 
   @Post('login')
@@ -58,7 +60,7 @@ export class AuthController {
       httpOnly: true,
     });
 
-    return { message: `Bienvenue ${user.name} !` };
+    return { message: `Bienvenue ${user.firstname} !` };
   }
 
   @Post('logout')

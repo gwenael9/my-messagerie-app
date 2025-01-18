@@ -50,7 +50,7 @@ export class FriendRequestController {
       user.sub,
     );
     return {
-      message: `${newFriend.name} a bien été ajouté à votre liste d'amis !`,
+      message: `${newFriend.firstname} a bien été ajouté à votre liste d'amis !`,
     };
   }
 
@@ -70,4 +70,8 @@ export class FriendRequestController {
     await this.friendRequestService.rejectFriendRequest(requestId, user.sub);
     return { message: "La demande d'ami a bien été supprimée." };
   }
+
+  /**
+   * Récupérer les demandes d'amis qui m'ont été envoyées
+   */
 }

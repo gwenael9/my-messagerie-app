@@ -2,14 +2,15 @@ import { create } from "zustand";
 import { register, login, me, logout } from "../api/auth";
 import { User } from "@/types/user";
 
-interface UserState {
+interface AuthState {
   isLoggedIn: boolean;
   user: User | null;
   loading: boolean;
   error: string | null;
   registerUser: (
     email: string,
-    name: string,
+    firstname: string,
+    lastname: string,
     password: string
   ) => Promise<string | void>;
   loginUser: (email: string, password: string) => Promise<string | void>;
@@ -17,16 +18,16 @@ interface UserState {
   logoutUser: () => Promise<string>;
 }
 
-const useUserStore = create<UserState>((set, get) => ({
+const useAuthStore = create<AuthState>((set, get) => ({
   isLoggedIn: false,
   user: null,
   loading: false,
   error: null,
 
-  registerUser: async (email, name, password) => {
+  registerUser: async (email, firstname, lastname, password) => {
     set({ loading: true, error: null });
     try {
-      return await register(email, name, password);
+      return await register(email, firstname, lastname, password);
     } catch (err) {
       console.error("Erreur lors de l'inscription :", err);
       set({ error: "Erreur lors de l'inscription" });
@@ -91,4 +92,4 @@ const useUserStore = create<UserState>((set, get) => ({
   },
 }));
 
-export default useUserStore;
+export default useAuthStore;

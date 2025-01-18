@@ -56,11 +56,13 @@ export class UserController {
     @Req() request: Request,
   ): Promise<{ message: string }> {
     const user = request.user as Payload;
-    const frientToDelete = await this.userService.removeFriend(
+    const friendToDelete = await this.userService.removeFriend(
       user.sub,
       friendId,
     );
-    return { message: `${frientToDelete.name} a été supprimé de vos amis.` };
+    return {
+      message: `${friendToDelete.firstname} a été supprimé de vos amis.`,
+    };
   }
 
   /**

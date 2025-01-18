@@ -1,17 +1,20 @@
-import useUserStore from "@/store/authStore";
+import useAuthStore from "@/store/authStore";
+import useUserStore from "@/store/userStore";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { fetchUser } = useUserStore();
+  const { fetchUser } = useAuthStore();
+  const { fetchUsersPublic } = useUserStore();
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       await fetchUser();
+      await fetchUsersPublic();
     };
-    fetchUserData();
-  }, [fetchUser]);
+    fetchData();
+  }, [fetchUser, fetchUsersPublic]);
 
   return <Component {...pageProps} />;
 }

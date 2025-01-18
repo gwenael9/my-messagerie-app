@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 
 export type ROLE = 'ADMIN' | 'USER';
+export type GENDER = 'HOMME' | 'FEMME';
 
 @Entity('users')
 export class User {
@@ -18,7 +19,10 @@ export class User {
   id: number;
 
   @Column()
-  name: string;
+  firstname: string;
+
+  @Column()
+  lastname: string;
 
   @Column()
   email: string;
@@ -32,6 +36,13 @@ export class User {
     default: 'USER',
   })
   role: ROLE;
+
+  @Column({
+    type: 'text',
+    enum: ['HOMME', 'FEMME'],
+    nullable: true,
+  })
+  gender: GENDER;
 
   /**
    * true = public

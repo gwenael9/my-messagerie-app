@@ -11,7 +11,7 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import useUserStore from "@/store/authStore";
+import useAuthStore from "@/store/authStore";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -30,7 +30,7 @@ export enum FormType {
 }
 
 export default function AuthForm({ type }: { type: FormType }) {
-  const { loginUser, registerUser, error, loading } = useUserStore();
+  const { loginUser, registerUser, error, loading } = useAuthStore();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -42,7 +42,13 @@ export default function AuthForm({ type }: { type: FormType }) {
     email: z.string().min(2, {
       message: "L'adresse mail doit être au bon format",
     }),
-    name:
+    firstname:
+      formType === FormType.REGISTER
+        ? z.string().min(2, {
+            message: "Votre nom doit contenir au moins 2 caractères",
+          })
+        : z.string().optional(),
+    lastname:
       formType === FormType.REGISTER
         ? z.string().min(2, {
             message: "Votre nom doit contenir au moins 2 caractères",
@@ -57,7 +63,8 @@ export default function AuthForm({ type }: { type: FormType }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      name: "",
+      firstname: "",
+      lastname: "",
       password: "",
     },
   });
@@ -73,11 +80,16 @@ export default function AuthForm({ type }: { type: FormType }) {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // valeurs du formulaire
-    const { email, name, password } = values;
+    const { email, firstname, lastname, password } = values;
     // création de compte
     if (formType === FormType.REGISTER) {
       try {
-        const message = await registerUser(email, name || "", password);
+        const message = await registerUser(
+          email,
+          firstname || "",
+          lastname || "",
+          password
+        );
         if (message) {
           toast({
             title: message,
@@ -142,19 +154,34 @@ export default function AuthForm({ type }: { type: FormType }) {
               )}
             />
             {formType === FormType.REGISTER && (
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nom</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Votre nom" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <>
+                <FormField
+                  control={form.control}
+                  name="lastname"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Votre nom" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="firstname"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prénom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Votre prénom" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
             )}
             <FormField
               control={form.control}
@@ -163,7 +190,7 @@ export default function AuthForm({ type }: { type: FormType }) {
                 <FormItem>
                   <FormLabel>Mot de passe</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
+                    <Input type="password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
