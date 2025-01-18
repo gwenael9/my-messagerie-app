@@ -33,6 +33,14 @@ export class User {
   })
   role: ROLE;
 
+  /**
+   * true = public
+   */
+  @Column({
+    default: true,
+  })
+  profilVisibility: boolean;
+
   @OneToMany(() => Message, (message) => message.sender)
   messageSend: Message[];
 

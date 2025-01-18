@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -29,6 +30,12 @@ export class UserController {
   /**
    * Ajouter une route permettant de voir tout les users public
    */
+  @Get('public')
+  @UseGuards(AuthGuard)
+  async findAllPublicUsers(@Req() request: Request): Promise<User[]> {
+    const user = request.user as Payload;
+    return await this.userService.findAllPublicAccount(user.sub);
+  }
 
   @Get('friends')
   @UseGuards(AuthGuard)
@@ -54,5 +61,18 @@ export class UserController {
       friendId,
     );
     return { message: `${frientToDelete.name} a été supprimé de vos amis.` };
+  }
+
+  /**
+   * Modifie la visibilité du profil de l'utilisateur connecté
+   */
+  @Patch('visibility')
+  @UseGuards(AuthGuard)
+  async modifyProfileVisibility(
+    @Req() request: Request,
+  ): Promise<{ message: string }> {
+    const user = request.user as Payload;
+    const result = await this.userService.modifyProfileVisibility(user.sub);
+    return { message: result };
   }
 }

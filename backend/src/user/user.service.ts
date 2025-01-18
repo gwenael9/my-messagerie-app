@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ROLE, User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -34,7 +34,13 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findByEmail(email: string): Promise<User | undefined> {
+  async findAllPublicAccount(userId: number): Promise<User[]> {
+    return this.userRepository.find({
+      where: { profilVisibility: true, id: Not(userId) },
+    });
+  }
+
+  async findByEmail(email: string): Promise<User> {
     return this.userRepository.findOne({ where: { email } });
   }
 
@@ -65,6 +71,12 @@ export class UserService {
     return this.findById(userId);
   }
 
+  /**
+   * Supprimer un ami
+   * @param userId L'ID de l'user connecté
+   * @param friendId L'ID de l'user à supprimer
+   * @returns On renvoie l'user supprimé
+   */
   async removeFriend(userId: number, friendId: number): Promise<User> {
     const user = await this.findById(userId);
     const friend = await this.findById(friendId);
@@ -103,5 +115,22 @@ export class UserService {
     if (alreadyFriends) {
       throw new UnauthorizedException('Vous êtes déjà amis.');
     }
+  }
+
+  async modifyProfileVisibility(userId: number): Promise<string> {
+    const user = await this.findById(userId);
+
+    if (!user) {
+      throw new Error('User introuvable');
+    }
+
+    // inversion de la visibilité
+    user.profilVisibility = !user.profilVisibility;
+    await this.userRepository.save(user);
+
+    // renvoie un message de confirmation
+    return `La visibilité du profil a été mise à jour : ${
+      user.profilVisibility ? 'publique' : 'privée'
+    }.`;
   }
 }
