@@ -3,7 +3,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Plus, Send } from "lucide-react";
 import { Button } from "../ui/button";
-import useAuthStore from "@/store/authStore";
+import useAuthStore from "@/stores/authStore";
 import { Badge } from "../ui/badge";
 import { capitalizeFirstLetter } from "@/lib/utils";
 

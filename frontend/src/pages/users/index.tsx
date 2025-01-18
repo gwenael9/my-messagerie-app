@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout/Layout";
 import CardUser from "@/components/users/user.card";
-import useUserStore from "@/store/userStore";
+import useUserStore from "@/stores/userStore";
 
 export default function UsersPage() {
   const { usersPublic } = useUserStore();

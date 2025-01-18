@@ -1,4 +1,4 @@
-import useAuthStore from "@/store/authStore";
+import useAuthStore from "@/stores/authStore";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -25,7 +25,10 @@ export default function DropdownAvatar() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
-          <AvatarImage src="https://github.com/shadcn.png" alt={user?.firstname} />
+          <AvatarImage
+            src="https://github.com/shadcn.png"
+            alt={user?.firstname}
+          />
           <AvatarFallback>{user?.firstname.charAt(0)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
