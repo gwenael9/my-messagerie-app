@@ -15,11 +15,11 @@ export default function MessageCard({ message }: MessageCardProps) {
   return (
     <div className={`flex ${isSentByMe ? "justify-end" : "justify-start"}`}>
       <div
-        className={`rounded p-2 max-w-sm ${
+        className={`flex flex-col rounded px-2 max-w-sm ${
           isSentByMe ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
         }`}
       >
-        <p>{message.content}</p>
+        <span>{message.content}</span>
         <span className="text-gray-500 text-xs">{time}</span>
       </div>
     </div>

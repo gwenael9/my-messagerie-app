@@ -86,7 +86,7 @@ export class ConversationService {
 
   /**
    * Vérifier qu'une conversion existe entre deux users
-   * Si non, on l'a créé et renvoie l'ID de cette conversation
+   * Si non, on l'a créé et renvoie cette conversation
    */
   async findOneConversationOfUsers(
     userId: number,
@@ -118,5 +118,78 @@ export class ConversationService {
     // si non, on créé une nouvelle conversation puis renvoie l'ID de cette dernière
     const newConversation = await this.create([user, otherUser]);
     return newConversation;
+  }
+
+  async seenAllMessageOfConversation(
+    conversationId: number,
+    userId: number,
+  ): Promise<Conversation> {
+    const conversation = await this.findById(conversationId);
+
+    // vérifier si la conversation nous appartient bien
+    if (!conversation.users.some((user) => user.id === userId)) {
+      throw new UnauthorizedException(
+        'Cette conversation ne vous appartient pas.',
+      );
+    }
+
+    // on met tout les messages qu'on a reçu sur vue
+    // conversation.messages.forEach((message) => {
+    //   if (message.sender.id !== userId) {
+    //     message.isRead = true;
+    //   }
+    // });
+
+    await this.conversationRepository
+      .createQueryBuilder()
+      .update('message')
+      .set({ isRead: true })
+      .where('conversationId = :conversationId', { conversationId })
+      .andWhere('recipientId = :userId', { userId })
+      .execute();
+
+    return conversation;
+  }
+
+  // recuperer le dernier message envoyé par l'autre user et le nombre de message non lu
+  async getConversationSummary(userId: number): Promise<
+    {
+      id: number;
+      lastMessage: { content: string; timestamp: Date };
+      unreadCount: number;
+    }[]
+  > {
+    const conversations = await this.findAllForUser(userId);
+
+    const summary = conversations
+      .map((conversation) => {
+        // Trier les messages par timestamp décroissant pour obtenir le dernier message
+        const sortedMessages = [...conversation.messages].sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        );
+
+        const lastMessage = sortedMessages[0]
+          ? {
+              content: sortedMessages[0].content,
+              timestamp: sortedMessages[0].timestamp,
+              senderId: sortedMessages[0].sender.id,
+            }
+          : null;
+
+        // Compter les messages envoyés par d'autres utilisateurs que `userId`
+        const unreadCount = conversation.messages.filter(
+          (message) => message.sender.id !== userId && !message.isRead,
+        ).length;
+
+        return {
+          id: conversation.id,
+          lastMessage,
+          unreadCount,
+        };
+      })
+      .filter((conversation) => conversation.lastMessage !== null);
+
+    return summary;
   }
 }

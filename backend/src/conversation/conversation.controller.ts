@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -25,14 +26,6 @@ export class ConversationController {
   @UseGuards(RolesGuard, AuthGuard)
   async getAllConversations(): Promise<Conversation[]> {
     return await this.conversationService.findAll();
-  }
-
-  @Get(':id')
-  @UseGuards(IsConversationParticipantGuard, AuthGuard)
-  async getOneConversation(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<Conversation> {
-    return await this.conversationService.findById(id);
   }
 
   @Get()
@@ -61,5 +54,33 @@ export class ConversationController {
       user.sub,
       otherUserId,
     );
+  }
+
+  @Patch('read/:conversationId')
+  @UseGuards(AuthGuard)
+  async updateIsReadMessage(
+    @Req() request: Request,
+    @Param('conversationId', ParseIntPipe) conversationId: number,
+  ): Promise<Conversation> {
+    const user = request.user as Payload;
+    return await this.conversationService.seenAllMessageOfConversation(
+      conversationId,
+      user.sub,
+    );
+  }
+
+  @Get('infos')
+  @UseGuards(AuthGuard)
+  async getInfosConversations(@Req() request: Request) {
+    const user = request.user as Payload;
+    return await this.conversationService.getConversationSummary(user.sub);
+  }
+
+  @Get(':id')
+  @UseGuards(IsConversationParticipantGuard, AuthGuard)
+  async getOneConversation(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Conversation> {
+    return await this.conversationService.findById(id);
   }
 }

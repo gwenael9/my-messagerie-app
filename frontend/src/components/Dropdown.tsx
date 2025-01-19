@@ -8,14 +8,17 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/router";
 
 export default function DropdownAvatar() {
   const { user, logoutUser } = useAuthStore();
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleLogout = async () => {
     setTimeout(async () => {
       const message = await logoutUser();
+      router.push("/");
       toast({
         title: message,
       });

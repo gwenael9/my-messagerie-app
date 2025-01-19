@@ -27,7 +27,7 @@ export default function CardUser({ user }: { user: User }) {
   };
 
   return (
-    <Card className="bg-white w-[300px]">
+    <Card className="bg-white w-[350px]">
       <CardHeader className="flex justify-between flex-row gap-4">
         <div className=" flex items-center">
           <Avatar className="h-20 w-20">

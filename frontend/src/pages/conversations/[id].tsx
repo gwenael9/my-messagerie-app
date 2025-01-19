@@ -81,31 +81,29 @@ export default function Conversation() {
               )}
               <div ref={messagesEndRef} />
             </div>
-            <div className="mt-4">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSendMessage)}>
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    defaultValue=""
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            className="bg-white"
-                            placeholder={`Comment vas-tu ${otherUser?.firstname} ?`}
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex justify-end mt-2">
-                    <Button type="submit">Envoyer</Button>
-                  </div>
-                </form>
-              </Form>
-            </div>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSendMessage)}>
+                <FormField
+                  control={form.control}
+                  name="message"
+                  defaultValue=""
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          className="bg-white"
+                          placeholder={`Comment vas-tu ${otherUser?.firstname} ?`}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end mt-2">
+                  <Button type="submit">Envoyer</Button>
+                </div>
+              </form>
+            </Form>
           </div>
         </div>
       </div>
