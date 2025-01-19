@@ -1,3 +1,4 @@
+import { Conversation } from "@/types/conversation";
 import apiClient from "./apiClient";
 
 /**
@@ -18,18 +19,18 @@ export const getOneConversation = async (conversationId: number) => {
  * @param otherUserId L'ID de l'user au quel on veux créer/récupérer la conversation
  * @return L'ID de la conversation entre l'utilisateur connecté et les autres utilisateurs
  */
-export const getIdOfConversation = async (
+export const getConversationWithOtherUserId = async (
   otherUserId: number
-): Promise<number> => {
+): Promise<Conversation | null> => {
   try {
     const response = await apiClient.get(`/conversations/user/${otherUserId}`);
-    console.log("nuuuuuuumber", response.data);
+    console.log("apiiiiiii", response.data);
     return response.data;
   } catch (error) {
     console.error(
       "Erreur lors de la récupération de l'ID de la conversation",
       error
     );
-    return 0;
+    return null;
   }
 };

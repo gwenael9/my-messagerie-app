@@ -55,7 +55,7 @@ export class ConversationController {
   async getConversationId(
     @Req() request: Request,
     @Param('otherUserId', ParseIntPipe) otherUserId: number,
-  ): Promise<number> {
+  ): Promise<Conversation> {
     const user = request.user as Payload;
     return await this.conversationService.findOneConversationOfUsers(
       user.sub,

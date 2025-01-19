@@ -20,8 +20,10 @@ export default function CardUser({ user }: { user: User }) {
   const fullname = `${user.firstname} ${user.lastname}`;
 
   const handleConversationFetch = async () => {
-    const id = await fetchIdOfOneConversation(user.id);
-    router.push(`/conversations/${id}`);
+    const conversation = await fetchIdOfOneConversation(user.id);
+    if (conversation) {
+      router.push(`/conversations/${conversation.id}`);
+    }
   };
 
   return (

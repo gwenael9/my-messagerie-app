@@ -36,6 +36,7 @@ export class ConversationService {
       users: users,
     });
     return await this.conversationRepository.save(conversation);
+    // ne pas renvoyer les conversations des users (a voir dans la reponse de la requete : http://localhost:4000/conversations/user/2)
   }
 
   // récupérer une conversation avec son ID
@@ -90,7 +91,7 @@ export class ConversationService {
   async findOneConversationOfUsers(
     userId: number,
     otherUserId: number,
-  ): Promise<number> {
+  ): Promise<Conversation> {
     const user = await this.userService.findById(userId);
     const otherUser = await this.userService.findById(otherUserId);
 
@@ -111,11 +112,11 @@ export class ConversationService {
 
     // si oui, on renvoie l'ID de cette conversation
     if (conversationAlreadyExist) {
-      return conversationAlreadyExist.id;
+      return conversationAlreadyExist;
     }
 
     // si non, on créé une nouvelle conversation puis renvoie l'ID de cette dernière
     const newConversation = await this.create([user, otherUser]);
-    return newConversation.id;
+    return newConversation;
   }
 }

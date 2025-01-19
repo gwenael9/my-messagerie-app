@@ -1,4 +1,4 @@
-import { getIdOfConversation, getOneConversation } from "@/api/conversations";
+import { getConversationWithOtherUserId, getOneConversation } from "@/api/conversations";
 import { sendMessage } from "@/api/message";
 import { Conversation } from "@/types/conversation";
 import { create } from "zustand";
@@ -6,7 +6,7 @@ import { create } from "zustand";
 interface ConversationState {
   conversation: Conversation | null;
   fetchOneConversation: (id: number) => Promise<void>;
-  fetchIdOfOneConversation: (otherUserId: number) => Promise<number>;
+  fetchIdOfOneConversation: (otherUserId: number) => Promise<Conversation | null>;
   loading: boolean;
   sendMessageStore: (
     recipientId: number,
@@ -16,8 +16,8 @@ interface ConversationState {
 }
 
 const useConversationStore = create<ConversationState>((set, get) => ({
-    conversation: null,
-    loading: false,
+  conversation: null,
+  loading: false,
 
   fetchOneConversation: async (id) => {
     set({ loading: true });
@@ -50,10 +50,10 @@ const useConversationStore = create<ConversationState>((set, get) => ({
 
   fetchIdOfOneConversation: async (otherUserId) => {
     try {
-      return await getIdOfConversation(otherUserId);
+      return await getConversationWithOtherUserId(otherUserId);
     } catch (error) {
       console.error("Erreur dans le Conversationstore", error);
-      return 0;
+      return null;
     }
   },
 }));
