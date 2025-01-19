@@ -7,15 +7,12 @@ import {
   HttpCode,
   Req,
   Get,
-  UseGuards,
-  // UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { Response, Request } from 'express';
 import { User } from '../user/user.entity';
 import { Payload } from 'src/types/payload';
-import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -83,9 +80,11 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthGuard)
   async getProfile(@Req() request: Request): Promise<User> {
     const user = request.user as Payload;
+    if (!user) {
+      return null;
+    }
     return await this.userService.findById(user.sub);
   }
 }
