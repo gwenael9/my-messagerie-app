@@ -27,10 +27,7 @@ export class ConversationService {
    */
   async findAllForUser(userId: number): Promise<Conversation[]> {
     const user = await this.userService.findById(userId);
-    return await this.conversationRepository.find({
-      where: { users: user },
-      relations: { messages: true },
-    });
+    return user.conversations;
   }
 
   // créer une conversation
@@ -62,6 +59,11 @@ export class ConversationService {
     if (!conversation) {
       throw new UnauthorizedException('Conversation introuvable.');
     }
+    // Trier les messages du plus récent au moins récent
+    (await conversation).messages.sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
     return conversation;
   }
 
@@ -79,5 +81,41 @@ export class ConversationService {
         conversation.users.some((user) => user.id === userId),
       ),
     );
+  }
+
+  /**
+   * Vérifier qu'une conversion existe entre deux users
+   * Si non, on l'a créé et renvoie l'ID de cette conversation
+   */
+  async findOneConversationOfUsers(
+    userId: number,
+    otherUserId: number,
+  ): Promise<number> {
+    const user = await this.userService.findById(userId);
+    const otherUser = await this.userService.findById(otherUserId);
+
+    if (userId === otherUserId) {
+      throw new UnauthorizedException(
+        'Impossible de créer une conversation pour vous même.',
+      );
+    }
+
+    if (!user || !otherUser) {
+      throw new UnauthorizedException(
+        "Vous ou l'autre utilisateur est introuvable",
+      );
+    }
+
+    // on vérifie si une conversation existe
+    const conversationAlreadyExist = await this.findByUsers([user, otherUser]);
+
+    // si oui, on renvoie l'ID de cette conversation
+    if (conversationAlreadyExist) {
+      return conversationAlreadyExist.id;
+    }
+
+    // si non, on créé une nouvelle conversation puis renvoie l'ID de cette dernière
+    const newConversation = await this.create([user, otherUser]);
+    return newConversation.id;
   }
 }

@@ -40,7 +40,7 @@ export class UserService {
       : { profilVisibility: true };
     return this.userRepository.find({
       where: conditions,
-      relations: ['friends'],
+      relations: ['friends', 'conversations'],
     });
   }
 

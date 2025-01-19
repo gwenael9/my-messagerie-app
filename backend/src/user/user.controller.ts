@@ -31,10 +31,9 @@ export class UserController {
    * Ajouter une route permettant de voir tout les users public
    */
   @Get('public')
-  // @UseGuards(AuthGuard)
   async findAllPublicUsers(@Req() request: Request): Promise<User[]> {
-    const user = request.user as Payload; // Extraire l'utilisateur connecté depuis le token
-    const userId = user ? user.sub : undefined; // Utiliser l'ID de l'utilisateur connecté, ou `undefined` si non connecté
+    const user = request.user as Payload;
+    const userId = user ? user.sub : undefined;
     return await this.userService.findAllPublicAccount(userId);
   }
 

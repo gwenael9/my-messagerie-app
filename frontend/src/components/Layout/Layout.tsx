@@ -20,8 +20,10 @@ export default function Layout({ children, title }: LayoutProps) {
           rel="stylesheet"
         />
       </Head>
-      <Header />
-      <main className="px-8 mt-2" style={{ height: "100dvh" }}>{children}</main>
+      <div className="flex flex-col h-screen">
+        <Header />
+        <main className="flex-grow px-8 my-4 overflow-y-auto">{children}</main>
+      </div>
       <Toaster />
     </>
   );

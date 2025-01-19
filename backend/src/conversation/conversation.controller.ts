@@ -43,4 +43,23 @@ export class ConversationController {
     const user = request.user as Payload;
     return await this.conversationService.findAllForUser(user.sub);
   }
+
+  /**
+   * on envoie l'userId du collegue
+   * on verifie si une conversation existe
+   * si non, on l'a créé
+   * puis on renvoie l'id de la conversation
+   */
+  @Get('user/:otherUserId')
+  @UseGuards(AuthGuard)
+  async getConversationId(
+    @Req() request: Request,
+    @Param('otherUserId', ParseIntPipe) otherUserId: number,
+  ): Promise<number> {
+    const user = request.user as Payload;
+    return await this.conversationService.findOneConversationOfUsers(
+      user.sub,
+      otherUserId,
+    );
+  }
 }

@@ -70,3 +70,10 @@ h2 {
   font-size: 2rem;
   font-weight: 600;
 }
+
+/* scrollbar */
+/* Personnaliser la scrollbar entière */
+::-webkit-scrollbar {
+  width: 0px; /* Largeur de la scrollbar verticale */
+}
+

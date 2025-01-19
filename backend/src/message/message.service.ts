@@ -20,6 +20,17 @@ export class MessageService {
     senderId: number,
     recipientId: number,
   ): Promise<Message> {
+    if (!content) {
+      throw new NotFoundException('Veuillez renseigner un message.');
+    }
+
+    // on vérifie que l'on envoie pas un message à nous même
+    if (senderId === recipientId) {
+      throw new NotFoundException(
+        'Impossible de vous envoyer un message à vous même !',
+      );
+    }
+
     const sender = await this.userService.findById(senderId);
     const recipient = await this.userService.findById(recipientId);
 
@@ -47,12 +58,12 @@ export class MessageService {
       recipient,
       conversation,
     });
-
-    return this.create(message);
-  }
-
-  async create(message: Message): Promise<Message> {
     message.timestamp = new Date();
-    return await this.messageRepository.save(message);
+
+    await this.messageRepository.save(message);
+    return await this.messageRepository.findOne({
+      where: { id: message.id },
+      relations: ['sender'],
+    });
   }
 }

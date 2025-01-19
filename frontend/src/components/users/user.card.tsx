@@ -6,14 +6,23 @@ import { Button } from "../ui/button";
 import useAuthStore from "@/stores/authStore";
 import { Badge } from "../ui/badge";
 import { capitalizeFirstLetter } from "@/lib/utils";
+import useConversationStore from "@/stores/conversationStore";
+import { useRouter } from "next/router";
 
 export default function CardUser({ user }: { user: User }) {
   const { user: me } = useAuthStore();
+  const { fetchIdOfOneConversation } = useConversationStore();
+  const router = useRouter();
 
   // on vérifie si l'user est notre ami
   const isFriend = user.friends.some((u) => u.id === me?.id);
 
   const fullname = `${user.firstname} ${user.lastname}`;
+
+  const handleConversationFetch = async () => {
+    const id = await fetchIdOfOneConversation(user.id);
+    router.push(`/conversations/${id}`);
+  };
 
   return (
     <Card className="bg-white w-[300px]">
@@ -39,13 +48,17 @@ export default function CardUser({ user }: { user: User }) {
             </div>
             <CardDescription>{user.email}</CardDescription>
           </div>
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end">
             {!isFriend && (
               <Button variant="outline" size="icon">
                 <Plus />
               </Button>
             )}
-            <Button variant="outline" size="icon">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleConversationFetch}
+            >
               <Send />
             </Button>
           </div>
