@@ -29,12 +29,14 @@ export enum FormType {
   LOGIN = "LOGIN",
 }
 
-export default function AuthForm({ type }: { type: FormType }) {
+type nameField = "firstname" | "lastname" | "email" | "password";
+
+export default function AuthForm() {
   const { loginUser, registerUser, error, loading } = useAuthStore();
   const { toast } = useToast();
   const router = useRouter();
 
-  const [formType, setFormType] = useState<FormType>(type);
+  const [formType, setFormType] = useState<FormType>(FormType.LOGIN);
   const [formKey, setFormKey] = useState<number>(0);
 
   // schéma de validation du formulaire
@@ -123,6 +125,28 @@ export default function AuthForm({ type }: { type: FormType }) {
   const title =
     formType === FormType.LOGIN ? "Se connecter" : "Créer votre compte";
 
+  const formField = (name: nameField, label: string, placeholder?: string) => {
+    let type: string;
+    if (name == "password") {
+      type = "password";
+    }
+    return (
+      <FormField
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <Input type={type} placeholder={placeholder} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
+  };
+
   return (
     <Card className="bg-white w-[500px]">
       <CardHeader>
@@ -137,62 +161,14 @@ export default function AuthForm({ type }: { type: FormType }) {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="example@mail.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {formField("email", "Email", "example@mail.com")}
             {formType === FormType.REGISTER && (
               <>
-                <FormField
-                  control={form.control}
-                  name="lastname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Votre nom" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="firstname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Prénom</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Votre prénom" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {formField("lastname", "Nom", "Votre nom")}
+                {formField("firstname", "Prénom", "Votre prénom")}
               </>
             )}
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mot de passe</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {formField("password", "Mot de passe")}
             <div className="flex justify-between items-center">
               <p className="text-xs text-center">
                 {formType === FormType.REGISTER

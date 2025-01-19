@@ -10,7 +10,7 @@ import useConversationStore from "@/stores/conversationStore";
 import { useRouter } from "next/router";
 
 export default function CardUser({ user }: { user: User }) {
-  const { user: me } = useAuthStore();
+  const { user: me, isLoggedIn } = useAuthStore();
   const { fetchIdOfOneConversation } = useConversationStore();
   const router = useRouter();
 
@@ -48,20 +48,22 @@ export default function CardUser({ user }: { user: User }) {
             </div>
             <CardDescription>{user.email}</CardDescription>
           </div>
-          <div className="flex items-center justify-end">
-            {!isFriend && (
-              <Button variant="outline" size="icon">
-                <Plus />
+          {isLoggedIn && (
+            <div className="flex items-center justify-end">
+              {!isFriend && (
+                <Button variant="outline" size="icon">
+                  <Plus />
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleConversationFetch}
+              >
+                <Send />
               </Button>
-            )}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleConversationFetch}
-            >
-              <Send />
-            </Button>
-          </div>
+            </div>
+          )}
         </div>
       </CardHeader>
     </Card>
