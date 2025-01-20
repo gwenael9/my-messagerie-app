@@ -19,7 +19,7 @@ export default function Conversation() {
   const form = useForm<FormValues>();
   const { id: conversationId } = router.query;
   const { user } = useAuthStore();
-  const { fetchOneConversation, conversation, loading, sendMessageStore } =
+  const { fetchOneConversation, conversation, loading, sendMessageStore, readMessages } =
     useConversationStore();
 
   const paramId =
@@ -30,8 +30,9 @@ export default function Conversation() {
   useEffect(() => {
     if (paramId > 0) {
       fetchOneConversation(paramId);
+      readMessages(paramId);
     }
-  }, [paramId, fetchOneConversation]);
+  }, [paramId, fetchOneConversation, readMessages]);
 
   // Scroll automatiquement vers le bas
   useEffect(() => {

@@ -16,7 +16,7 @@ export class FriendRequestService {
   async sendFriendRequest(
     senderId: number,
     receiverId: number,
-  ): Promise<FriendRequest> {
+  ): Promise<string> {
     if (senderId === receiverId) {
       throw new UnauthorizedException('Impossible de vous demandez en ami.');
     }
@@ -48,7 +48,10 @@ export class FriendRequestService {
     });
 
     // et on la retourne
-    return this.friendRequestRepository.save(friendRequest);
+    await this.friendRequestRepository.save(friendRequest);
+
+    // et on retourne le nom de l'user a qui on fais la demande
+    return receiver.firstname;
   }
 
   async acceptFriendRequest(requestId: number, userId: number): Promise<User> {
@@ -103,5 +106,18 @@ export class FriendRequestService {
       throw new UnauthorizedException('Cette requête ne vous ai pas adressée.');
     }
     return friendRequest;
+  }
+
+  // recuperer toutes les requetes qui m'ont été envoyées
+  async findAllRequest(userId: number): Promise<FriendRequest[]> {
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Utilisateur introuvable.');
+    }
+
+    return await this.friendRequestRepository.find({
+      where: { receiver: user, status: FriendRequestStatus.PENDING },
+      relations: ['sender'],
+    });
   }
 }

@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   HttpCode,
   Param,
   ParseIntPipe,
@@ -11,6 +12,7 @@ import { FriendRequestService } from './friendRequest.service';
 import { Payload } from 'src/types/payload';
 import { Request } from 'express';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { FriendRequest } from './friendRequest.entity';
 
 @Controller('friend-requests')
 export class FriendRequestController {
@@ -28,8 +30,11 @@ export class FriendRequestController {
     @Req() request: Request,
   ): Promise<{ message: string }> {
     const user = request.user as Payload;
-    await this.friendRequestService.sendFriendRequest(user.sub, receiverId);
-    return { message: "La demande d'ami a bien été envoyé." };
+    const friendName = await this.friendRequestService.sendFriendRequest(
+      user.sub,
+      receiverId,
+    );
+    return { message: `La demande d'ami a bien été envoyé à ${friendName}.` };
   }
 
   /**
@@ -74,4 +79,10 @@ export class FriendRequestController {
   /**
    * Récupérer les demandes d'amis qui m'ont été envoyées
    */
+  @Get()
+  @UseGuards(AuthGuard)
+  async getMyRequest(@Req() request: Request): Promise<FriendRequest[]> {
+    const user = request.user as Payload;
+    return await this.friendRequestService.findAllRequest(user.sub);
+  }
 }

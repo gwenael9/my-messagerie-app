@@ -1,3 +1,4 @@
+import { User } from "@/types/user";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -11,4 +12,9 @@ export function capitalizeFirstLetter(str: string): string {
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))  
     .join(' ');
+}
+
+export function changeName (user: User): string {
+  const name = user.firstname + ' ' + user.lastname;
+  return capitalizeFirstLetter(name);
 }

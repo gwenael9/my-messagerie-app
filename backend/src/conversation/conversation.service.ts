@@ -27,7 +27,11 @@ export class ConversationService {
    */
   async findAllForUser(userId: number): Promise<Conversation[]> {
     const user = await this.userService.findById(userId);
-    return user.conversations;
+    // return user.conversations;
+    return await this.conversationRepository.find({
+      where: { users: user },
+      relations: ['users', 'messages', 'messages.sender', 'messages.recipient'],
+    });
   }
 
   // créer une conversation
@@ -155,8 +159,9 @@ export class ConversationService {
   async getConversationSummary(userId: number): Promise<
     {
       id: number;
-      lastMessage: { content: string; timestamp: Date };
+      lastMessage: { content: string; timestamp: Date; sendByMe: boolean };
       unreadCount: number;
+      otherUser: User;
     }[]
   > {
     const conversations = await this.findAllForUser(userId);
@@ -173,9 +178,16 @@ export class ConversationService {
           ? {
               content: sortedMessages[0].content,
               timestamp: sortedMessages[0].timestamp,
-              senderId: sortedMessages[0].sender.id,
+              sendByMe: sortedMessages[0].sender.id === userId,
             }
           : null;
+
+        let otherUser;
+        if (lastMessage) {
+          otherUser = lastMessage.sendByMe
+            ? sortedMessages[0].recipient
+            : sortedMessages[0].sender;
+        }
 
         // Compter les messages envoyés par d'autres utilisateurs que `userId`
         const unreadCount = conversation.messages.filter(
@@ -186,9 +198,15 @@ export class ConversationService {
           id: conversation.id,
           lastMessage,
           unreadCount,
+          otherUser,
         };
       })
-      .filter((conversation) => conversation.lastMessage !== null);
+      .filter((conversation) => conversation.lastMessage !== null)
+      .sort(
+        (a, b) =>
+          new Date(b.lastMessage.timestamp).getTime() -
+          new Date(a.lastMessage.timestamp).getTime(),
+      );
 
     return summary;
   }

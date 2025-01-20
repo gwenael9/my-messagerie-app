@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpCode,
   Param,
   ParseIntPipe,
   Post,
@@ -19,6 +20,7 @@ export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post('send/:recipientId')
+  @HttpCode(200)
   async sendMessage(
     @Body()
     body: {
