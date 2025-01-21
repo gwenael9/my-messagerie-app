@@ -1,5 +1,6 @@
 import MessageCard from "@/components/conversations/message.card";
 import Layout from "@/components/Layout/Layout";
+import LoadingBase from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,8 +20,13 @@ export default function Conversation() {
   const form = useForm<FormValues>();
   const { id: conversationId } = router.query;
   const { user } = useAuthStore();
-  const { fetchOneConversation, conversation, loading, sendMessageStore, readMessages } =
-    useConversationStore();
+  const {
+    fetchOneConversation,
+    conversation,
+    loading,
+    sendMessageStore,
+    readMessages,
+  } = useConversationStore();
 
   const paramId =
     typeof conversationId === "string" ? parseInt(conversationId, 10) : 0;
@@ -50,7 +56,7 @@ export default function Conversation() {
   const name = capitalizeFirstLetter(otherUserName);
 
   if (loading) {
-    return <p>chargement</p>;
+    return <LoadingBase />;
   }
 
   if (!conversation?.messages) {

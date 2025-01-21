@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { register, login, me, logout } from "../api/auth";
 import { User } from "@/types/user";
 import useUserStore from "./userStore";
+import useMessageStore from "./messageStore";
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -21,6 +22,7 @@ interface AuthState {
 }
 
 const userStore = useUserStore.getState();
+const messageStore = useMessageStore.getState();
 
 const useAuthStore = create<AuthState>((set, get) => ({
   isLoggedIn: false,
@@ -75,6 +77,9 @@ const useAuthStore = create<AuthState>((set, get) => ({
 
         // re-fetch les users publics
         await userStore.fetchUsersPublic();
+
+        // refetch le nombre de message non lus
+        await messageStore.fetchNbMessagesNoRead();
 
         return message;
       }

@@ -66,4 +66,14 @@ export class MessageService {
       relations: ['sender'],
     });
   }
+
+  // récupérer le nombre de message non lus pour une personne
+  async getAllNbOfMessageNotRead(userId: number): Promise<number> {
+    return await this.messageRepository.count({
+      where: {
+        recipient: { id: userId },
+        isRead: false,
+      },
+    });
+  }
 }

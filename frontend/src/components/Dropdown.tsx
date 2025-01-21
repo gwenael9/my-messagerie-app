@@ -9,6 +9,7 @@ import {
 } from "./ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function DropdownAvatar() {
   const { user, logoutUser } = useAuthStore();
@@ -36,7 +37,9 @@ export default function DropdownAvatar() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>Mon compte</DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link href="/users">Utilisateurs</Link>
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator className="my-1 border-t" />
         <DropdownMenuItem

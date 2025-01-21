@@ -7,6 +7,7 @@ import {
 import { sendMessage } from "@/api/message";
 import { Conversation, ConversationSummary } from "@/types/conversation";
 import { create } from "zustand";
+import useMessageStore from "./messageStore";
 
 interface ConversationState {
   conversation: Conversation | null;
@@ -24,6 +25,8 @@ interface ConversationState {
   fetchConversationsSummary: () => Promise<void>;
   readMessages: (conversationId: number) => void;
 }
+
+const messageStore = useMessageStore.getState();
 
 const useConversationStore = create<ConversationState>((set, get) => ({
   conversation: null,
@@ -69,17 +72,23 @@ const useConversationStore = create<ConversationState>((set, get) => ({
   },
 
   fetchConversationsSummary: async () => {
+    set({ loading: true });
     try {
       const conversations = await getInfosConversations();
       set({ conversationsSummary: conversations });
     } catch (error) {
       console.error("Erreur lors du fetchConversationSummary", error);
+    } finally {
+      set({ loading: false });
     }
   },
 
   readMessages: async (conversationId) => {
     try {
       await readAllMessage(conversationId);
+
+      // refetch le nombre de message non lus
+      await messageStore.fetchNbMessagesNoRead();
     } catch (error) {
       console.error("Erreur dans readMessage", error);
     }

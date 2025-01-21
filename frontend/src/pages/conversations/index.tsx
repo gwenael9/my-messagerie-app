@@ -1,10 +1,11 @@
 import ConversationSumCard from "@/components/conversations/conversation.summary.card";
 import Layout from "@/components/Layout/Layout";
+import LoadingBase from "@/components/Loading";
 import useConversationStore from "@/stores/conversationStore";
 import { useEffect } from "react";
 
 export default function Conversations() {
-  const { conversationsSummary, fetchConversationsSummary } =
+  const { conversationsSummary, fetchConversationsSummary, loading } =
     useConversationStore();
 
   useEffect(() => {
@@ -13,6 +14,10 @@ export default function Conversations() {
     };
     fetchData();
   }, [fetchConversationsSummary]);
+
+  if (loading) {
+    return <LoadingBase />;
+  }
 
   return (
     <Layout title="Conversations">

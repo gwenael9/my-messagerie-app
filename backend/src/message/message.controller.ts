@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Param,
   ParseIntPipe,
@@ -42,5 +43,15 @@ export class MessageController {
     );
 
     return message;
+  }
+
+  @Get('number/noread')
+  @UseGuards(AuthGuard)
+  async getNbMessagesNotRead(
+    @Req() request: Request,
+  ): Promise<{ message: string; number: number }> {
+    const user = request.user as Payload;
+    const number = await this.messageService.getAllNbOfMessageNotRead(user.sub);
+    return { message: `Vous avez ${number} messages non lus.`, number: number };
   }
 }
