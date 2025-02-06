@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { changeName } from "@/lib/utils";
 import useMessageStore from "@/stores/messageStore";
 import useConversationStore from "@/stores/conversationStore";
+import BreadcrumbMessage from "../BreadCrumb";
 
 interface LayoutProps {
   children: ReactNode;
@@ -59,7 +60,13 @@ export default function Layout({ children, title }: LayoutProps) {
         newSocket.disconnect(); // Déconnecter le socket à la destruction du composant
       };
     }
-  }, [fetchConversationsSummary, fetchNbMessagesNoRead, router, toast, user?.id]);
+  }, [
+    fetchConversationsSummary,
+    fetchNbMessagesNoRead,
+    router,
+    toast,
+    user?.id,
+  ]);
 
   return (
     <>
@@ -74,7 +81,10 @@ export default function Layout({ children, title }: LayoutProps) {
       </Head>
       <div className="flex flex-col h-screen">
         <Header />
-        <main className="flex-grow px-8 my-4 overflow-y-auto">{children}</main>
+        <main className="flex-grow px-8 overflow-y-auto">
+          <BreadcrumbMessage />
+          {children}
+        </main>
       </div>
       <Toaster />
     </>

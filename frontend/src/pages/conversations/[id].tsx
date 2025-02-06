@@ -3,8 +3,9 @@ import Layout from "@/components/Layout/Layout";
 import LoadingBase from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import { changeName } from "@/lib/utils";
 import useAuthStore from "@/stores/authStore";
 import useConversationStore from "@/stores/conversationStore";
 import { useRouter } from "next/router";
@@ -48,7 +49,6 @@ export default function Conversation() {
 
   useEffect(() => {
     const handleNewMessage = () => {
-      console.log("Nouveau message reçu, refetch de la conversation...");
       fetchOneConversation(paramId);
     };
 
@@ -69,17 +69,11 @@ export default function Conversation() {
   // récupérer le nom de l'autre user de la conversation
   const otherUser = conversation?.users.find((u) => u.id !== user?.id);
   const otherUserName = otherUser
-    ? `${otherUser.firstname} ${otherUser.lastname}`
+    ? changeName(otherUser)
     : "Utilisateur inconnu";
-
-  const name = capitalizeFirstLetter(otherUserName);
 
   if (loading) {
     return <LoadingBase />;
-  }
-
-  if (!conversation?.messages) {
-    return <p>non</p>;
   }
 
   const handleSendMessage: SubmitHandler<FormValues> = async (values) => {
@@ -89,30 +83,31 @@ export default function Conversation() {
 
   return (
     <Layout title="Conversation">
-      <div className="flex justify-center h-full w-full">
+      <div className="flex justify-center w-full">
         <div className="w-full max-w-[500px] h-full">
           <div className="flex flex-col justify-between h-full">
             <div className="border-b pb-2">
-              <h2>{name}</h2>
+              <h2>{otherUserName}</h2>
             </div>
-            <div className="flex flex-col h-full max-h-[400px] hover:overflow-y-scroll gap-1 p-2 overflow-hidden">
-              {conversation?.messages.length > 0 ? (
-                conversation?.messages.map((message) => (
-                  <MessageCard key={message.id} message={message} />
-                ))
-              ) : (
-                <p className="text-center text-white">
-                  Démarrez une conversation avec {name}.
-                </p>
-              )}
+            <ScrollArea className="h-[450px] py-2">
+              <div className="flex flex-col gap-1">
+                {conversation && conversation?.messages.length > 0 ? (
+                  conversation?.messages.map((message) => (
+                    <MessageCard key={message.id} message={message} />
+                  ))
+                ) : (
+                  <p className="text-center text-white">
+                    Démarrez une conversation avec {otherUserName}.
+                  </p>
+                )}
+              </div>
               <div ref={messagesEndRef} />
-            </div>
+            </ScrollArea>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSendMessage)}>
                 <FormField
                   control={form.control}
                   name="message"
-                  defaultValue=""
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
