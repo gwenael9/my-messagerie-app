@@ -13,6 +13,7 @@ import { UserService } from '../user/user.service';
 import { Response, Request } from 'express';
 import { User } from '../user/user.entity';
 import { Payload } from 'src/types/payload';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -40,6 +41,18 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'Se connecter' })
+  @ApiResponse({ status: 200, description: 'Connexion établie' })
+  @ApiResponse({ status: 401, description: 'Identifiants incorrects' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', format: 'email' },
+        password: { type: 'string', format: 'password' },
+      },
+    },
+  })
   @HttpCode(200)
   async login(
     @Body() body: { email: string; password: string },
