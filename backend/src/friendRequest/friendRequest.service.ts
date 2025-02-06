@@ -120,4 +120,17 @@ export class FriendRequestService {
       relations: ['sender'],
     });
   }
+
+  // recuperer toutes les requetes que j'ai envoyées
+  async findAllMyRequests(userId: number): Promise<FriendRequest[]> {
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Utilisateur introuvable.');
+    }
+
+    return await this.friendRequestRepository.find({
+      where: { sender: user, status: FriendRequestStatus.PENDING },
+      relations: ['receiver'],
+    });
+  }
 }

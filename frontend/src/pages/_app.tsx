@@ -11,15 +11,17 @@ export default function App({ Component, pageProps }: AppProps) {
   const { fetchNbMessagesNoRead } = useMessageStore();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchMe = async () => {
       await fetchUser();
+    };
+    const fetchData = async () => {
       await fetchUsersPublic();
       await fetchNbMessagesNoRead();
-      console.log("api");
     };
     if (isLoggedIn) {
       fetchData();
     }
+    fetchMe();
   }, [fetchNbMessagesNoRead, fetchUser, fetchUsersPublic, isLoggedIn]);
 
   return <Component {...pageProps} />;

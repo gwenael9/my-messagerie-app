@@ -30,11 +30,15 @@ export class FriendRequestController {
     @Req() request: Request,
   ): Promise<{ message: string }> {
     const user = request.user as Payload;
-    const friendName = await this.friendRequestService.sendFriendRequest(
-      user.sub,
-      receiverId,
-    );
-    return { message: `La demande d'ami a bien été envoyé à ${friendName}.` };
+    try {
+      const friendName = await this.friendRequestService.sendFriendRequest(
+        user.sub,
+        receiverId,
+      );
+      return { message: `La demande d'ami a bien été envoyé à ${friendName}.` };
+    } catch (error) {
+      return { message: (error as Error).message };
+    }
   }
 
   /**
@@ -84,5 +88,15 @@ export class FriendRequestController {
   async getMyRequest(@Req() request: Request): Promise<FriendRequest[]> {
     const user = request.user as Payload;
     return await this.friendRequestService.findAllRequest(user.sub);
+  }
+
+  /**
+   * Récupérer les demandes d'amis que j'ai envoyé
+   */
+  @Get('/byme')
+  @UseGuards(AuthGuard)
+  async getMyRequestsSend(@Req() request: Request): Promise<FriendRequest[]> {
+    const user = request.user as Payload;
+    return await this.friendRequestService.findAllMyRequests(user.sub);
   }
 }

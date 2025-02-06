@@ -14,7 +14,6 @@ export const sendMessage = async (recipientId: number, content: string) => {
 export const getNbMessagesNotRead = async () => {
   try {
     const response = await apiClient.get("/messages/number/noread");
-    console.log("apiiiiiiii nb messages", response.data);
     return response.data;
   } catch (error) {
     console.error(

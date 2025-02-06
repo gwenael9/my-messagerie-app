@@ -8,11 +8,14 @@ import { Badge } from "../ui/badge";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import useConversationStore from "@/stores/conversationStore";
 import { useRouter } from "next/router";
+import { addNewFriend } from "@/api/users";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CardUser({ user }: { user: User }) {
   const { user: me, isLoggedIn } = useAuthStore();
   const { fetchIdOfOneConversation } = useConversationStore();
   const router = useRouter();
+  const { toast } = useToast();
 
   // on vérifie si l'user est notre ami
   const isFriend = user.friends.some((u) => u.id === me?.id);
@@ -24,6 +27,14 @@ export default function CardUser({ user }: { user: User }) {
     if (conversation) {
       router.push(`/conversations/${conversation.id}`);
     }
+  };
+
+  const handleAddNewFriend = async (userId: number) => {
+    const message = await addNewFriend(userId);
+    toast({
+      title: message,
+      variant: "success",
+    });
   };
 
   return (
@@ -53,7 +64,11 @@ export default function CardUser({ user }: { user: User }) {
           {isLoggedIn && (
             <div className="flex items-center justify-end">
               {!isFriend && (
-                <Button variant="outline" size="icon">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleAddNewFriend(user.id)}
+                >
                   <Plus />
                 </Button>
               )}

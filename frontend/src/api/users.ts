@@ -14,3 +14,34 @@ export const getPublicUsers = async (): Promise<User[]> => {
     return [];
   }
 };
+
+/**
+ *
+ * @param userId L'ID de l'user que l'on souhaite ajouter
+ * @returns Un message validant la demande d'ami
+ */
+export const addNewFriend = async (userId: number) => {
+  try {
+    const response = await apiClient.post(`/friend-requests/${userId}`);
+    console.log("addNewFriend :", response.data);
+    return response.data.message;
+  } catch (error) {
+    console.error("Erreur lors de la demande d'ami", error);
+  }
+};
+
+/**
+ * 
+ * @returns Toutes les demandes d'amis que j'ai envoyés qui sont en attente
+ */
+export const getAllFriendRequest = async () => {
+  try {
+    const response = await apiClient.get("/friend-requests/byme");
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération de mes demandes d'amis",
+      error
+    );
+  }
+};
