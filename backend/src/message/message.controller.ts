@@ -14,11 +14,15 @@ import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { Request } from 'express';
 import { Payload } from 'src/types/payload';
 import { Message } from './message.entity';
+import { MessageGateway } from './message.gateway';
 
 @Controller('messages')
 @UseGuards(AuthGuard)
 export class MessageController {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly messageGateway: MessageGateway,
+  ) {}
 
   @Post('send/:recipientId')
   @HttpCode(200)
@@ -41,6 +45,15 @@ export class MessageController {
       user.sub,
       recipientId,
     );
+
+    console.log(
+      'Appel WebSocket depuis controller :',
+      user.sub,
+      recipientId,
+      message,
+    );
+
+    this.messageGateway.sendMessageToUsers(user.sub, recipientId, message);
 
     return message;
   }

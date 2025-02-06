@@ -63,7 +63,10 @@ export class MessageService {
     await this.messageRepository.save(message);
     return await this.messageRepository.findOne({
       where: { id: message.id },
-      relations: ['sender'],
+      relations: ['sender', 'conversation'],
+      select: {
+        conversation: { id: true },
+      },
     });
   }
 

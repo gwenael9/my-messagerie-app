@@ -10,10 +10,16 @@ import useConversationStore from "@/stores/conversationStore";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { io } from "socket.io-client";
 
 interface FormValues {
   message: string;
 }
+
+const socket = io("http://localhost:4000", {
+  query: { userId: useAuthStore.getState().user?.id }, // Envoie l'ID de l'utilisateur
+  withCredentials: true,
+});
 
 export default function Conversation() {
   const router = useRouter();
@@ -39,6 +45,19 @@ export default function Conversation() {
       readMessages(paramId);
     }
   }, [paramId, fetchOneConversation, readMessages]);
+
+  useEffect(() => {
+    const handleNewMessage = () => {
+      console.log("Nouveau message reçu, refetch de la conversation...");
+      fetchOneConversation(paramId);
+    };
+
+    socket.on("receiveMessage", handleNewMessage);
+
+    return () => {
+      socket.off("receiveMessage", handleNewMessage);
+    };
+  }, [fetchOneConversation, paramId]);
 
   // Scroll automatiquement vers le bas
   useEffect(() => {

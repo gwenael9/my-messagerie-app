@@ -3,6 +3,7 @@ import { register, login, me, logout } from "../api/auth";
 import { User } from "@/types/user";
 import useUserStore from "./userStore";
 import useMessageStore from "./messageStore";
+import { Socket } from "socket.io-client";
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -10,6 +11,7 @@ interface AuthState {
   friends: User[] | [];
   loading: boolean;
   error: string | null;
+  socket: Socket | null;
   registerUser: (
     email: string,
     firstname: string,
@@ -30,6 +32,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
   loading: false,
   error: null,
   friends: [],
+  socket: null,
 
   registerUser: async (email, firstname, lastname, password) => {
     set({ loading: true, error: null });
@@ -96,6 +99,13 @@ const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const message = await logout();
       set({ isLoggedIn: false, user: null });
+
+      // Déconnexion du WebSocket
+      const socket = get().socket;
+      if (socket) {
+        socket.disconnect();
+        set({ socket: null }); // Supprime le socket du store
+      }
 
       // re-fetch les users publics
       await userStore.fetchUsersPublic();
