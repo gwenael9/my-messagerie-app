@@ -25,7 +25,8 @@ export default function BreadcrumbMessage() {
 
   const breadcrumbMap: Record<string, string> = {
     conversations: "Conversations",
-    users: "Utilisateurs"
+    users: "Utilisateurs",
+    auth: "Authentification",
   };
 
   const getNameOfConversationUser = () => {
