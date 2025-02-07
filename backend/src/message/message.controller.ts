@@ -46,13 +46,6 @@ export class MessageController {
       recipientId,
     );
 
-    console.log(
-      'Appel WebSocket depuis controller :',
-      user.sub,
-      recipientId,
-      message,
-    );
-
     this.messageGateway.sendMessageToUsers(user.sub, recipientId, message);
 
     return message;

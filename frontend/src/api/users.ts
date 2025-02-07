@@ -23,7 +23,6 @@ export const getPublicUsers = async (): Promise<User[]> => {
 export const addNewFriend = async (userId: number) => {
   try {
     const response = await apiClient.post(`/friend-requests/${userId}`);
-    console.log("addNewFriend :", response.data);
     return response.data.message;
   } catch (error) {
     console.error("Erreur lors de la demande d'ami", error);
