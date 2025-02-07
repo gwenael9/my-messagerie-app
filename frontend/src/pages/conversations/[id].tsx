@@ -8,32 +8,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { changeName } from "@/lib/utils";
 import useAuthStore from "@/stores/authStore";
 import useConversationStore from "@/stores/conversationStore";
+import useSocketStore from "@/stores/socketStore";
+import { Message } from "@/types/message";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { io } from "socket.io-client";
 
 interface FormValues {
   message: string;
 }
-
-const socket = io("http://localhost:4000", {
-  query: { userId: useAuthStore.getState().user?.id }, // Envoie l'ID de l'utilisateur
-  withCredentials: true,
-});
 
 export default function Conversation() {
   const router = useRouter();
   const form = useForm<FormValues>();
   const { id: conversationId } = router.query;
   const { user } = useAuthStore();
-  const {
-    fetchOneConversation,
-    conversation,
-    loading,
-    sendMessageStore,
-    readMessages,
-  } = useConversationStore();
+  const { fetchOneConversation, conversation, sendMessageStore, readMessages } =
+    useConversationStore();
+  const { onReceiveMessage } = useSocketStore();
+
+  const [isFetching, setIsFetching] = useState(true);
+
+  const [firstUnreadIndex, setFirstUnreadIndex] = useState<number | null>(null);
 
   const paramId =
     typeof conversationId === "string" ? parseInt(conversationId, 10) : 0;
@@ -42,29 +38,42 @@ export default function Conversation() {
 
   useEffect(() => {
     if (paramId > 0) {
-      fetchOneConversation(paramId);
+      setIsFetching(true);
+      fetchOneConversation(paramId).finally(() => setIsFetching(false));
       readMessages(paramId);
     }
   }, [paramId, fetchOneConversation, readMessages]);
 
   useEffect(() => {
-    const handleNewMessage = () => {
-      fetchOneConversation(paramId);
+    const handleNewMessage = (data: { data: Message }) => {
+      if (data.data.conversation.id === paramId) {
+        fetchOneConversation(paramId);
+      }
     };
 
-    socket.on("receiveMessage", handleNewMessage);
-
-    return () => {
-      socket.off("receiveMessage", handleNewMessage);
-    };
-  }, [fetchOneConversation, paramId]);
+    onReceiveMessage(handleNewMessage);
+  }, [fetchOneConversation, onReceiveMessage, paramId]);
 
   // Scroll automatiquement vers le bas
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [conversation?.messages]);
+  }, [conversation?.messages, isFetching]);
+
+  // Fonction pour trouver l'index du premier message non lu
+  const findFirstUnreadIndex = useCallback((messages: Message[]) => {
+    return messages.findIndex(
+      (message) => !message.isRead && message.recipient.id === user?.id
+    );
+  }, [user?.id]);
+
+  // Recalculer isNoRead à chaque mise à jour des messages
+  useEffect(() => {
+    if (conversation?.messages.length) {
+      setFirstUnreadIndex(findFirstUnreadIndex(conversation.messages));
+    }
+  }, [conversation?.messages, findFirstUnreadIndex]);
 
   // récupérer le nom de l'autre user de la conversation
   const otherUser = conversation?.users.find((u) => u.id !== user?.id);
@@ -72,18 +81,25 @@ export default function Conversation() {
     ? changeName(otherUser)
     : "Utilisateur inconnu";
 
-  if (loading) {
-    return <LoadingBase />;
-  }
-
   const handleSendMessage: SubmitHandler<FormValues> = async (values) => {
+    if (!values.message) return;
     form.reset();
     await sendMessageStore(otherUser?.id || 0, values.message, paramId);
   };
 
+  if (isFetching) {
+    return <LoadingBase />;
+  }
+
   return (
-    <Layout title="Conversation">
-      <div className="flex justify-center w-full">
+    <Layout title={otherUserName}>
+      <div
+        className="flex justify-center w-full"
+        onClick={() => {
+          readMessages(paramId);
+          setFirstUnreadIndex(null);
+        }}
+      >
         <div className="w-full max-w-[500px] h-full">
           <div className="flex flex-col justify-between h-full">
             <div className="border-b pb-2">
@@ -92,9 +108,18 @@ export default function Conversation() {
             <ScrollArea className="h-[450px] py-2">
               <div className="flex flex-col gap-1">
                 {conversation && conversation?.messages.length > 0 ? (
-                  conversation?.messages.map((message) => (
-                    <MessageCard key={message.id} message={message} />
-                  ))
+                  conversation?.messages.map((message, index) => {
+                    return (
+                      <div key={message.id}>
+                        {index === firstUnreadIndex && (
+                          <div className="text-center text-red-500 font-bold">
+                            Message non lu
+                          </div>
+                        )}
+                        <MessageCard message={message} />
+                      </div>
+                    );
+                  })
                 ) : (
                   <p className="text-center text-white">
                     Démarrez une conversation avec {otherUserName}.
