@@ -5,7 +5,7 @@ import { Plus, Send } from "lucide-react";
 import { Button } from "../ui/button";
 import useAuthStore from "@/stores/authStore";
 import { Badge } from "../ui/badge";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import { changeName } from "@/lib/utils";
 import useConversationStore from "@/stores/conversationStore";
 import { useRouter } from "next/router";
 import { addNewFriend } from "@/api/users";
@@ -19,8 +19,6 @@ export default function CardUser({ user }: { user: User }) {
 
   // on vérifie si l'user est notre ami
   const isFriend = user.friends.some((u) => u.id === me?.id);
-
-  const fullname = `${user.firstname} ${user.lastname}`;
 
   const handleConversationFetch = async () => {
     const conversation = await fetchIdOfOneConversation(user.id);
@@ -55,7 +53,7 @@ export default function CardUser({ user }: { user: User }) {
           <div>
             <div className="flex items-center gap-2">
               <CardTitle className="text-xl">
-                {capitalizeFirstLetter(fullname)}
+                {changeName(user)}
               </CardTitle>
               {isFriend && <Badge variant="outline">ami</Badge>}
             </div>

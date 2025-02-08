@@ -62,11 +62,14 @@ export default function Conversation() {
   }, [conversation?.messages, isFetching]);
 
   // Fonction pour trouver l'index du premier message non lu
-  const findFirstUnreadIndex = useCallback((messages: Message[]) => {
-    return messages.findIndex(
-      (message) => !message.isRead && message.recipient.id === user?.id
-    );
-  }, [user?.id]);
+  const findFirstUnreadIndex = useCallback(
+    (messages: Message[]) => {
+      return messages.findIndex(
+        (message) => !message.isRead && message.sender.id !== user?.id
+      );
+    },
+    [user?.id]
+  );
 
   // Recalculer isNoRead à chaque mise à jour des messages
   useEffect(() => {
@@ -83,8 +86,8 @@ export default function Conversation() {
 
   const handleSendMessage: SubmitHandler<FormValues> = async (values) => {
     if (!values.message) return;
-    form.reset();
     await sendMessageStore(otherUser?.id || 0, values.message, paramId);
+    form.reset({ message: "" });
   };
 
   if (isFetching) {
