@@ -1,0 +1,10 @@
+{
+    "name": "my-messagerie-app",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+      "dev": "docker compose up --build"
+    },
+    "author": "Gwenael Gueho"
+  }
+  
